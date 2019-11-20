@@ -17,22 +17,17 @@ from six import (
     itervalues,
 )
 from unittest import TestCase
+from unittest.mock import Mock
+
 from IPython.utils.tempdir import TemporaryDirectory
 
 from pgcontents.hybridmanager import HybridContentsManager
-from pgcontents.pgmanager import PostgresContentsManager
 
-from .test_pgmanager import PostgresContentsManagerTestCase
-from .utils import (
-    assertRaisesHTTPError,
-    make_fernet,
-    remigrate_test_schema,
-    TEST_DB_URL,
-)
+from .utils import assertRaisesHTTPError
+
 from ..utils.ipycompat import APITest, FileContentsManager, TestContentsManager
 
-
-setup_module = remigrate_test_schema
+TEST_FILE_NAME = "Untitled.ipynb"
 
 
 def _make_dir(contents_manager, api_path):
@@ -47,15 +42,13 @@ def _make_dir(contents_manager, api_path):
 
 
 class FileTestCase(TestContentsManager):
-
     def setUp(self):
         self._temp_dir = TemporaryDirectory()
         self.td = self._temp_dir.name
         self._file_manager = FileContentsManager(root_dir=self.td,
                                                  delete_to_trash=False)
         self.contents_manager = HybridContentsManager(
-            managers={'': self._file_manager}
-        )
+            managers={'': self._file_manager})
 
     def tearDown(self):
         self._temp_dir.cleanup()
@@ -67,51 +60,14 @@ class FileTestCase(TestContentsManager):
         _make_dir(self._file_manager, api_path)
 
 
-class PostgresTestCase(PostgresContentsManagerTestCase):
-
-    def setUp(self):
-        self.crypto = make_fernet()
-        self._pgmanager = PostgresContentsManager(
-            user_id='test',
-            db_url=TEST_DB_URL,
-            crypto=self.crypto,
-        )
-        self._pgmanager.ensure_user()
-        self._pgmanager.ensure_root_directory()
-
-        self.contents_manager = HybridContentsManager(
-            managers={'': self._pgmanager}
-        )
-
-        self.addCleanup(self._pgmanager.engine.dispose)
-        self.addCleanup(self._pgmanager.checkpoints.engine.dispose)
-
-    # HybridContentsManager is not expected to dispatch calls to get_file_id
-    # because PostgresContentsManager is the only contents manager that
-    # implements it.
-    def test_get_file_id(self):
-        pass
-
-    def set_pgmgr_attribute(self, name, value):
-        setattr(self._pgmanager, name, value)
-
-    def make_dir(self, api_path):
-        self.contents_manager.new(
-            model={'type': 'directory'},
-            path=api_path,
-        )
-
-
 class MultiRootTestCase(TestCase):
-
     def setUp(self):
 
         mgr_roots = ['A', '', u'unicodé']
-        self.temp_dirs = {
-            prefix: TemporaryDirectory() for prefix in mgr_roots
-        }
+        self.temp_dirs = {prefix: TemporaryDirectory() for prefix in mgr_roots}
         self.temp_dir_names = {
-            prefix: v.name for prefix, v in iteritems(self.temp_dirs)
+            prefix: v.name
+            for prefix, v in iteritems(self.temp_dirs)
         }
         self._managers = {
             prefix: FileContentsManager(root_dir=self.temp_dir_names[prefix],
@@ -123,7 +79,6 @@ class MultiRootTestCase(TestCase):
     def test_get(self):
         cm = self.contents_manager
 
-        untitled_nb = 'Untitled.ipynb'
         untitled_txt = 'untitled.txt'
         for prefix, real_dir in iteritems(self.temp_dir_names):
             # Create a notebook
@@ -131,35 +86,42 @@ class MultiRootTestCase(TestCase):
             name = model['name']
             path = model['path']
 
-            self.assertEqual(name, untitled_nb)
-            self.assertEqual(path, pjoin(prefix, untitled_nb))
-            self.assertTrue(
-                exists(osjoin(real_dir, untitled_nb))
-            )
+            self.assertEqual(name, TEST_FILE_NAME)
+            self.assertEqual(path, pjoin(prefix, TEST_FILE_NAME))
+            self.assertTrue(exists(osjoin(real_dir, TEST_FILE_NAME)))
 
             # Check that we can 'get' on the notebook we just created
             model2 = cm.get(path)
             assert isinstance(model2, dict)
             self.assertDictContainsSubset(
-                {'name': name, 'path': path},
+                {
+                    'name': name,
+                    'path': path
+                },
                 model2,
             )
 
             nb_as_file = cm.get(path, content=True, type='file')
             self.assertDictContainsSubset(
-                {'name': name, 'path': path, 'format': 'text'},
+                {
+                    'name': name,
+                    'path': path,
+                    'format': 'text'
+                },
                 nb_as_file,
             )
             self.assertNotIsInstance(nb_as_file['content'], dict)
 
-            nb_as_bin_file = cm.get(
-                path=path,
-                content=True,
-                type='file',
-                format='base64'
-            )
+            nb_as_bin_file = cm.get(path=path,
+                                    content=True,
+                                    type='file',
+                                    format='base64')
             self.assertDictContainsSubset(
-                {'name': name, 'path': path, 'format': 'base64'},
+                {
+                    'name': name,
+                    'path': path,
+                    'format': 'base64'
+                },
                 nb_as_bin_file,
             )
             self.assertNotIsInstance(nb_as_bin_file['content'], dict)
@@ -170,15 +132,15 @@ class MultiRootTestCase(TestCase):
             prefixed_sub_dir = pjoin(prefix, sub_dir)
 
             cm.new_untitled(path=prefixed_sub_dir, ext='.ipynb')
-            self.assertTrue(exists(osjoin(real_dir, sub_dir, untitled_nb)))
+            self.assertTrue(exists(osjoin(real_dir, sub_dir, TEST_FILE_NAME)))
 
-            sub_dir_nbpath = pjoin(prefixed_sub_dir, untitled_nb)
+            sub_dir_nbpath = pjoin(prefixed_sub_dir, TEST_FILE_NAME)
             model2 = cm.get(sub_dir_nbpath)
             self.assertDictContainsSubset(
                 {
                     'type': 'notebook',
                     'format': 'json',
-                    'name': untitled_nb,
+                    'name': TEST_FILE_NAME,
                     'path': sub_dir_nbpath,
                 },
                 model2,
@@ -210,7 +172,10 @@ class MultiRootTestCase(TestCase):
             sub_sub_dirname = 'bar'
             sub_sub_dirpath = pjoin(prefixed_sub_dir, sub_sub_dirname)
             cm.save(
-                {'type': 'directory', 'path': sub_sub_dirpath},
+                {
+                    'type': 'directory',
+                    'path': sub_sub_dirpath
+                },
                 sub_sub_dirpath,
             )
             self.assertTrue(exists(osjoin(real_dir, sub_dir, sub_sub_dirname)))
@@ -263,14 +228,19 @@ class MultiRootTestCase(TestCase):
 
         root_dir_model = cm.get('')
         self.assertDictContainsSubset(
-            {'path': '', 'name': '', 'type': 'directory', 'format': 'json'},
+            {
+                'path': '',
+                'name': '',
+                'type': 'directory',
+                'format': 'json'
+            },
             root_dir_model,
         )
         content = root_dir_model['content']
         self.assertIsInstance(content, list)
         # Two new files, plus the sub-manager directories.
         dirs = set(self.temp_dir_names)
-        files = {'Untitled.ipynb', 'untitled.txt'}
+        files = {TEST_FILE_NAME, 'untitled.txt'}
         paths = dirs | files
         self.assertEqual(len(content), 4)
         for entry in content:
@@ -280,7 +250,7 @@ class MultiRootTestCase(TestCase):
                 self.fail("Unexpected entry path %s" % entry)
             if path in dirs:
                 self.assertEqual(entry['type'], 'directory')
-            elif path == 'Untitled.ipynb':
+            elif path == TEST_FILE_NAME:
                 self.assertEqual(entry['type'], 'notebook')
             else:
                 self.assertEqual(entry['type'], 'file')
@@ -291,18 +261,57 @@ class MultiRootTestCase(TestCase):
             with assertRaisesHTTPError(self, 400):
                 cm.delete(prefix)
 
-    def test_cant_rename_across_managers(self):
+    def test_cant_rename_root(self):
+        cm = self.contents_manager
+
+        with assertRaisesHTTPError(self, 400):
+            cm.rename('', 'A')
+
+    def test_rename_submanager_calls(self):
         cm = self.contents_manager
         cm.new_untitled(ext='.ipynb')
 
-        with assertRaisesHTTPError(self, 400):
-            cm.rename('Untitled.ipynb', 'A/Untitled.ipynb')
+        new_path = 'A/test/Untitled.ipynb'
+
+        old_manager = self._managers['']
+        new_manager = self._managers['A']
+
+        # Configure Mocks
+        old_manager.delete = Mock()
+        new_manager.save = Mock()
+        old_manager.get = Mock()
+
+        # Get test data
+        old_model = old_manager.get(TEST_FILE_NAME)
+        new_relative_path = 'test/Untitled.ipynb'
+
+        # Make calls
+        cm.rename(TEST_FILE_NAME, new_path)
+
+        # Run tests
+        old_manager.delete.assert_called_with(TEST_FILE_NAME)
+        old_manager.get.assert_called_with(TEST_FILE_NAME)
+        new_manager.save.assert_called_with(old_model, new_relative_path)
+
+    def test_can_rename_across_managers(self):
+        cm = self.contents_manager
+        cm.new_untitled(ext='.ipynb')
+
+        new_path = 'A/Untitled.ipynb'
+
+        cm.rename(TEST_FILE_NAME, new_path)
+
+        with assertRaisesHTTPError(self, 404):
+            cm.get(TEST_FILE_NAME)
+
+        model2 = cm.get(new_path)
+
+        self.assertIn('path', model2)
 
     def tearDown(self):
         for dir_ in itervalues(self.temp_dirs):
             dir_.cleanup()
 
 
-del PostgresContentsManagerTestCase
 del TestContentsManager
 del APITest
