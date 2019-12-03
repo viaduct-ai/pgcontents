@@ -203,7 +203,7 @@ class HybridContentsManager(ContentsManager):
         if not path_is_valid:
             raise HTTPError(
                 405,
-                "The path '{path}' is not valid for the prefix '{prefix}'".
+                "The path '{path}' is not valid for the directory '{prefix}'/".
                 format(path=path, prefix=prefix))
 
         return path_is_valid
