@@ -21,7 +21,7 @@ from mock import Mock
 
 from IPython.utils.tempdir import TemporaryDirectory
 
-from hybrid_content_manager.hybridmanager import HybridContentsManager
+from hybridcontents.hybridmanager import HybridContentsManager
 
 from .testing_utils import assertRaisesHTTPError
 
@@ -75,6 +75,10 @@ class MultiRootTestCase(TestCase):
             for prefix in mgr_roots
         }
         self.contents_manager = HybridContentsManager(managers=self._managers)
+
+        self.contents_manager.path_validator = {
+            'A': lambda s: not s.endswith('.yaml')
+        }
 
     def test_get(self):
         cm = self.contents_manager
@@ -242,10 +246,14 @@ class MultiRootTestCase(TestCase):
         dirs = set(self.temp_dir_names)
         files = {TEST_FILE_NAME, 'untitled.txt'}
         paths = dirs | files
+
         self.assertEqual(len(content), 4)
+
         for entry in content:
             self.assertEqual(entry['path'], entry['name'])
+
             path = entry['path']
+
             if path not in paths:
                 self.fail("Unexpected entry path %s" % entry)
             if path in dirs:
@@ -274,16 +282,15 @@ class MultiRootTestCase(TestCase):
         new_path = 'A/test/Untitled.ipynb'
 
         old_manager = self._managers['']
-        new_manager = self._managers['A']
 
         # Configure Mocks
         old_manager.delete = Mock()
-        new_manager.save = Mock()
         old_manager.get = Mock()
+
+        cm.save = Mock()
 
         # Get test data
         old_model = old_manager.get(TEST_FILE_NAME)
-        new_relative_path = 'test/Untitled.ipynb'
 
         # Make calls
         cm.rename(TEST_FILE_NAME, new_path)
@@ -291,7 +298,7 @@ class MultiRootTestCase(TestCase):
         # Run tests
         old_manager.delete.assert_called_with(TEST_FILE_NAME)
         old_manager.get.assert_called_with(TEST_FILE_NAME)
-        new_manager.save.assert_called_with(old_model, new_relative_path)
+        cm.save.assert_called_with(old_model, new_path)
 
     def test_can_rename_across_managers(self):
         cm = self.contents_manager
@@ -307,6 +314,23 @@ class MultiRootTestCase(TestCase):
         model2 = cm.get(new_path)
 
         self.assertIn('path', model2)
+
+    def test_rename_invalid_path(self):
+        cm = self.contents_manager
+
+        cm.new_untitled(ext='.yaml')
+
+        old_path = 'Untitled.yaml'
+        new_path = 'A/Untitled.yaml'
+
+        with assertRaisesHTTPError(self, 405):
+            cm.rename(old_path, new_path)
+
+    def test_save_invalid_path(self):
+        cm = self.contents_manager
+
+        with assertRaisesHTTPError(self, 405):
+            cm.new_untitled(path='A', ext='.yaml')
 
     def tearDown(self):
         for dir_ in itervalues(self.temp_dirs):

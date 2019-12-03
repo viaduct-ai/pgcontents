@@ -21,17 +21,17 @@ def main():
     test_reqs = read_requirements('requirements_test.txt')
 
     setup(
-        name='hybrid-content-manager',
+        name='hybridcontents',
         version='0.6',
         description="Hybrid Content Manager",
         long_description=long_description,
         author="viaduct.ai",
         author_email="engineering@viaduct.ai",
-        packages=find_packages(include='hybrid_content_manager.*'),
+        packages=find_packages(include='hybridcontents.*'),
         license='Apache 2.0',
         include_package_data=True,
         zip_safe=True,
-        url="https://github.com/viaduct-ai/pgcontents",
+        url="https://github.com/viaduct-ai/hybridcontents",
         classifiers=[
             'Development Status :: 4 - Beta',
             'Framework :: IPython',

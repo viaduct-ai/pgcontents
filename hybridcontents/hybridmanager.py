@@ -150,6 +150,10 @@ def path_dispatch_old_new(mname, returns_model):
     return _wrapper
 
 
+def DEFAULT_PATH_VALIDATOR(path):
+    return True
+
+
 class HybridContentsManager(ContentsManager):
     """ContentsManager subclass that delegates specific subdirectories to other
     ContentsManager/Checkpoints pairs."""
@@ -160,6 +164,10 @@ class HybridContentsManager(ContentsManager):
     manager_kwargs = Dict(
         config=True,
         help=("Dict of dicts mapping root dir -> kwargs for manager."))
+
+    path_validator = Dict(
+        config=True,
+        help=("Dict mapping root dir -> path validation function"))
 
     managers = Dict(help=("Dict mapping root dir -> ContentsManager."))
 
@@ -186,13 +194,26 @@ class HybridContentsManager(ContentsManager):
     def _extra_root_dirs(self):
         return [base_directory_model(path) for path in self.managers if path]
 
+    def _validate_path(self, prefix, path):
+
+        validator = self.path_validator.get(prefix, DEFAULT_PATH_VALIDATOR)
+
+        path_is_valid = validator(path)
+
+        if not path_is_valid:
+            raise HTTPError(
+                405,
+                "The path '{path}' is not valid for the prefix '{prefix}'".
+                format(path=path, prefix=prefix))
+
+        return path_is_valid
+
     is_hidden = path_dispatch1('is_hidden', False)
     dir_exists = path_dispatch1('dir_exists', False)
     file_exists = path_dispatch_kwarg('file_exists', '', False)
     exists = path_dispatch1('exists', False)
 
-    save = path_dispatch2('save', 'model', True)
-
+    __save = path_dispatch2('save', 'model', True)
     __get = path_dispatch1('get', True)
     __delete = path_dispatch1('delete', False)
 
@@ -253,6 +274,14 @@ class HybridContentsManager(ContentsManager):
 
     # CODE WRITTEN BY VIADUCT
     @outside_root_to_404
+    def save(self, model, path):
+        prefix, mgr, mgr_path = _resolve_path(path, self.managers)
+
+        self._validate_path(prefix, mgr_path)
+
+        return self.__save(model, path)
+
+    @outside_root_to_404
     def rename(self, old_path, new_path):
         """Ensure that roots of our managers can't be moved or renamed.
 
@@ -265,6 +294,7 @@ class HybridContentsManager(ContentsManager):
             new_path,
             self.managers,
         )
+
         # do not allow moving/renaming the root
         if old_mgr_path in self.managers or new_mgr_path in self.managers:
             raise HTTPError(
@@ -279,8 +309,8 @@ class HybridContentsManager(ContentsManager):
             # get the model from the old_mgr
             model = old_mgr.get(old_mgr_path)
 
-            # save the model with the new_mgr
-            new_mgr.save(model, new_mgr_path)
+            # save the model
+            self.save(model, new_path)
 
             # delete the model with the old_mgr using the protected delete
             # pass in the full path because self.delete will normalize the path again
