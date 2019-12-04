@@ -1,4 +1,3 @@
-from __future__ import print_function
 from setuptools import setup, find_packages
 from os.path import join, dirname, abspath
 import sys
@@ -22,7 +21,7 @@ def main():
 
     setup(
         name='hybridcontents',
-        version='0.6',
+        version='0.1.0',
         description="Hybrid Content Manager",
         long_description=long_description,
         author="viaduct.ai",
@@ -42,6 +41,10 @@ def main():
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python',
+        ],
+        keywords=[
+            'jupyterhub', 'pgcontents', 'hybridcontents', 'content manager',
+            'hybridcontentmanager'
         ],
         install_requires=reqs,
         extras_require={
