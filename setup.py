@@ -5,7 +5,7 @@ import sys
 long_description = ''
 
 if 'upload' in sys.argv or '--long-description' in sys.argv:
-    with open('README.rst') as f:
+    with open('README.md') as f:
         long_description = f.read()
 
 
@@ -21,13 +21,15 @@ def main():
 
     setup(
         name='hybridcontents',
-        version='0.1.0',
+        version='0.1.1',
         description="Hybrid Content Manager",
         long_description=long_description,
         author="viaduct.ai",
         author_email="engineering@viaduct.ai",
         packages=find_packages(include='hybridcontents.*'),
         license='Apache 2.0',
+        download_url=
+        'https://github.com/viaduct-ai/hybridcontents/archive/v0.1.1.tar.gz',
         include_package_data=True,
         zip_safe=True,
         url="https://github.com/viaduct-ai/hybridcontents",
