@@ -321,4 +321,6 @@ class HybridContentsManager(ContentsManager):
         # Else we are moving within a single ContentManager
         assert new_prefix == old_prefix
 
+        self._validate_path(new_prefix, new_mgr_path)
+
         return new_mgr.rename(old_mgr_path, new_mgr_path)

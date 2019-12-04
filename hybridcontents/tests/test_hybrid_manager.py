@@ -326,6 +326,17 @@ class MultiRootTestCase(TestCase):
         with assertRaisesHTTPError(self, 405):
             cm.rename(old_path, new_path)
 
+    def test_rename_invalid_path_same_manager(self):
+        cm = self.contents_manager
+
+        cm.new_untitled(path='A', ext='.txt')
+
+        old_path = 'A/Untitled.txt'
+        new_path = 'A/Untitled2.yaml'
+
+        with assertRaisesHTTPError(self, 405):
+            cm.rename(old_path, new_path)
+
     def test_save_invalid_path(self):
         cm = self.contents_manager
 
