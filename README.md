@@ -1,7 +1,7 @@
-Hybrid-Content-Manager
+HybridContents
 ======================
-It aims to a be a transparent, drop-in replacement for IPython's standard filesystem-backed storage system.  
-These features are useful when running IPython in environments where you either don't have access to—or don't trust the reliability of—the local filesystem of your notebook server.
+
+The HybridContentManager was originally created by Quantopia as part of `pgcontents`; however, the project is no longer maintained and the usage of `HybridContentsManager` was restricted to the compatibility requirements of `pgcontents`.
 
 Getting Started
 ---------------
@@ -9,7 +9,10 @@ Getting Started
  - A Python installation with `Jupyter Notebook <https://github.com/jupyter/notebook>`_ >= 4.0.
 
 **Installation:**
- - TODO
+
+```bash
+pip install hybridcontents
+```
 
 Usage
 -----
@@ -41,14 +44,22 @@ c.HybridContentsManager.manager_kwargs = {
     },
 }
 
+def only_allow_notebooks(path):
+  return path.endswith('.ipynb')
+
 # Only allow notebook files to be stored in S3
 c.HybridContentsManager.path_validator = {
-    "shared": lambda path: path.endswith('.ipynb')
+    "shared": only_allow_notebooks
 }
 ```
 
 
 Testing
 -------
-To run unit tests, simply cd to the root directory of the project and run the command ``tox``. 
+To run unit tests, 
+
+```bash
+tox
+```
+
 This will run all unit tests for python versions 2.7, 3.6, 3.7 and jupyter notebook versions 4, 5, and 6.
