@@ -1,12 +1,7 @@
 from setuptools import setup, find_packages
 from os.path import join, dirname, abspath
-import sys
 
-long_description = ''
-
-if 'upload' in sys.argv or '--long-description' in sys.argv:
-    with open('README.md') as f:
-        long_description = f.read()
+long_description = open('README.md').read()
 
 
 def read_requirements(basename):
@@ -24,6 +19,7 @@ def main():
         version='0.1.1',
         description="Hybrid Content Manager",
         long_description=long_description,
+        long_description_content_type='text/markdown',
         author="viaduct.ai",
         author_email="engineering@viaduct.ai",
         packages=find_packages(include='hybridcontents.*'),
