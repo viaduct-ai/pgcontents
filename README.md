@@ -1,7 +1,7 @@
 HybridContents
 ======================
 
-The HybridContentManager was originally created by Quantopia as part of `pgcontents`; however, the project is no longer maintained and the usage of `HybridContentsManager` was restricted to the compatibility requirements of `pgcontents`.
+The `HybridContentManager` was originally created by [Quantopian](https://www.quantopian.com/) as part of [pgcontents](https://github.com/quantopian/pgcontents); however, the usage of `HybridContentsManager` was restricted to the compatibility requirements of [pgcontents](https://github.com/quantopian/pgcontents). These restrictions included `postgres` dependencies and not supporting the latest [notebook](https://pypi.org/project/notebook/) version (>6) even though the `HybridContentsManager`'s had no dependencies with and was isolated from [pgcontents](https://github.com/quantopian/pgcontents). There were also open issues related to this https://github.com/quantopian/pgcontents/issues/66 , https://github.com/quantopian/pgcontents/issues/50, and https://github.com/quantopian/pgcontents/issues/28. At [Viaduct](https://viaduct.ai) we used [pgcontents](https://github.com/quantopian/pgcontents) exclusively for the `HybridContentsManager` and wanted to extend its functionality, so we created this fork [hybridcontents](https://github.com/viaduct-ai/hybridcontents).
 
 Getting Started
 ---------------
@@ -30,7 +30,7 @@ c.HybridContentsManager.manager_classes = {
 
 # Each item will be passed to the constructor of the appropriate content manager.
 c.HybridContentsManager.manager_kwargs = {
-    # Args for root S3ContentsManager.
+    # Args for root FileContentsManager
     "": {
         "root_dir": read_only_dir
     },
