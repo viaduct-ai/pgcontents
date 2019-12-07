@@ -1,4 +1,31 @@
+# This example shows how to configure Jupyter/IPython to use the more complex
+# HybridContentsManager.
+
+# A HybridContentsManager implements the contents API by delegating requests to
+# other contents managers. Each sub-manager is associated with a root
+# directory, and all requests for data within that directory are routed to the
+# sub-manager.
+
+# A HybridContentsManager needs two pieces of information at configuration time:
+
+# 1. ``manager_classes``, a map from root directory to the type of contents
+#    manager to use for that root directory.
+# 2. ``manager_kwargs``, a map from root directory to a dict of keywords to
+#    pass to the associated sub-manager.
+
+# Optionally, a HybridContentsManager supports path validation to ensure a
+# consistent naming scheme or avoid illegal characters across different managers
+
+# path_validator, a map from root directory to a validation function for new model paths.
+
+import os
 from hybridcontents import HybridContentsManager
+from pgcontents.pgmanager import PostgresContentsManager
+from s3contents import S3ContentsManager, GCSContentsManager
+
+# Using Jupyter (IPython >= 4.0).
+# from notebook.services.contents.filemanager import FileContentsManager
+# Using Legacy IPython.
 from IPython.html.services.contents.filemanager import FileContentsManager
 
 c = get_config()
@@ -7,38 +34,64 @@ c = get_config()
 c.NotebookApp.contents_manager_class = HybridContentsManager
 
 c.HybridContentsManager.manager_classes = {
-    # Associate the root directory with a FileContentsManager.
-    # This manager will receive all requests that don"t fall under any of the
+    # Associate the root directory with a FileContentsManager,
+    # This manager will receive all requests that don't fall under any of the
     # other managers.
-    "": FileContentsManager,
-    # Associate /directory with a FileContentsManager
-    "directory": FileContentsManager,
+    # If you want to make this path un-editable you can configure it to use a read-only filesystem
+    '': FileContentsManager,
+    # Associate /directory with a FileContentsManager.
+    'directory': FileContentsManager,
+    # Associate the postgres directory with a PostgresContentManager
+    'postgres': PostgresContentsManager,
+    # Associate the s3 directory with AWS S3
+    's3': S3ContentsManager,
+    # Associate the gcs directory with GCS
+    'gcs': GCSContentsManager
 }
 
-# Each value in this dictionary contains the parameters
-# required for each of the directory's respective managers.
 c.HybridContentsManager.manager_kwargs = {
-    # Args for the FileContentsManager mapped to /
-    "": {
-        "root_dir": "/home/user/some_local_directory"
+    # Args for the FileContentsManager mapped to /directory
+    '': {
+        'root_dir': '/tmp/read-only',
     },
     # Args for the FileContentsManager mapped to /directory
-    "directory": {
-        "root_dir": "/home/user/some_other_local_directory"
+    'directory': {
+        'root_dir': '/home/viaduct/local_directory',
+    },
+    # Args for  PostgresContentsManager.
+    'postgres': {
+        'db_url': 'postgresql://ssanderson@/pgcontents_testing',
+        'user_id': 'my_awesome_username',
+        'max_file_size_bytes': 1000000,  # Optional
+    },
+    # Args for  S3ContentManager.
+    's3': {
+        "access_key_id": os.environ.get("AWS_ACCESS_KEY_ID"),
+        "secret_access_key": os.environ.get("AWS_SECRET_ACCESS_KEY"),
+        "endpoint_url": os.environ.get("AWS_ENDPOINT_URL"),
+        "bucket": "my-remote-data-bucket",
+        "prefix": "s3/prefix"
+    },
+    # Args for  GCSContentManager.
+    'gcs': {
+        'project': "<your-project>",
+        'token': "~/.config/gcloud/application_default_credentials.json",
+        'bucket': "<bucket-name>"
     },
 }
 
 
-def DEFAULT_VALIDATOR(path):
+def no_validation(path):
     return True
 
 
-def NO_SPACES_VALIDATOR(path):
-    return not (' ' in path)
+def no_spaces(path):
+    return ' ' not in path
 
 
-# Associate a filename validation function with each content manager.
 c.HybridContentsManager.path_validator = {
-    "": DEFAULT_VALIDATOR,
-    "directory": NO_SPACES_VALIDATOR
+    "": no_validation,
+    'directory': no_validation,
+    'postgres': no_spaces,
+    's3': no_spaces
 }
