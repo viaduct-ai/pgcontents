@@ -30,6 +30,7 @@ from IPython.html.services.contents.filemanager import FileContentsManager
 
 c = get_config()
 
+# Set main content manager to be a HybridContentsManager
 c.NotebookApp.contents_manager_class = HybridContentsManager
 
 c.HybridContentsManager.manager_classes = {

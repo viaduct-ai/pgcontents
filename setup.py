@@ -1,13 +1,7 @@
-from __future__ import print_function
 from setuptools import setup, find_packages
 from os.path import join, dirname, abspath
-import sys
 
-long_description = ''
-
-if 'upload' in sys.argv or '--long-description' in sys.argv:
-    with open('README.rst') as f:
-        long_description = f.read()
+long_description = open('README.md').read()
 
 
 def read_requirements(basename):
@@ -22,13 +16,16 @@ def main():
 
     setup(
         name='hybridcontents',
-        version='0.6',
+        version='0.1.1',
         description="Hybrid Content Manager",
         long_description=long_description,
+        long_description_content_type='text/markdown',
         author="viaduct.ai",
         author_email="engineering@viaduct.ai",
         packages=find_packages(include='hybridcontents.*'),
         license='Apache 2.0',
+        download_url=
+        'https://github.com/viaduct-ai/hybridcontents/archive/v0.1.1.tar.gz',
         include_package_data=True,
         zip_safe=True,
         url="https://github.com/viaduct-ai/hybridcontents",
@@ -42,6 +39,10 @@ def main():
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python',
+        ],
+        keywords=[
+            'jupyterhub', 'pgcontents', 'hybridcontents', 'content manager',
+            'hybridcontentmanager'
         ],
         install_requires=reqs,
         extras_require={

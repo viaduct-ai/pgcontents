@@ -203,7 +203,7 @@ class HybridContentsManager(ContentsManager):
         if not path_is_valid:
             raise HTTPError(
                 405,
-                "The path '{path}' is not valid for the prefix '{prefix}'".
+                "The path '{path}' is not valid for the directory '{prefix}'/".
                 format(path=path, prefix=prefix))
 
         return path_is_valid
@@ -320,5 +320,7 @@ class HybridContentsManager(ContentsManager):
             return None
         # Else we are moving within a single ContentManager
         assert new_prefix == old_prefix
+
+        self._validate_path(new_prefix, new_mgr_path)
 
         return new_mgr.rename(old_mgr_path, new_mgr_path)
