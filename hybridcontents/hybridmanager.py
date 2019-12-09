@@ -164,7 +164,7 @@ class HybridContentsManager(ContentsManager):
         config=True,
         help=("Dict of dicts mapping root dir -> kwargs for manager."))
 
-    path_validator = Dict(
+    path_validators = Dict(
         config=True,
         help=("Dict mapping root dir -> path validation function"))
 
@@ -195,7 +195,7 @@ class HybridContentsManager(ContentsManager):
 
     def _validate_path(self, prefix, path):
 
-        validator = self.path_validator.get(prefix, DEFAULT_PATH_VALIDATOR)
+        validator = self.path_validators.get(prefix, DEFAULT_PATH_VALIDATOR)
 
         path_is_valid = validator(path)
 

@@ -72,7 +72,7 @@ class MultiRootTestCase(TestCase):
         }
         self.contents_manager = HybridContentsManager(managers=self._managers)
 
-        self.contents_manager.path_validator = {
+        self.contents_manager.path_validators = {
             'A': lambda s: not s.endswith('.yaml')
         }
 
