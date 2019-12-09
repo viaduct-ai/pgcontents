@@ -4,12 +4,15 @@ from __future__ import unicode_literals
 from six import iteritems
 from tornado.web import HTTPError
 
+from notebook.services.contents.manager import ContentsManager
+
+from traitlets import Dict
+
 from .api_utils import (
     base_directory_model,
     normalize_api_path,
     outside_root_to_404,
 )
-from .ipycompat import ContentsManager, Dict
 
 
 @outside_root_to_404
@@ -77,7 +80,6 @@ def _apply_prefix(prefix, model):
 # Dispatch decorators.
 def path_dispatch1(mname, returns_model):
     """Decorator for methods that accept path as a first argument."""
-
     def _wrapper(self, *args, **kwargs):
         path, args = _get_arg('path', args, kwargs)
         prefix, mgr, mgr_path = _resolve_path(path, self.managers)
@@ -92,7 +94,6 @@ def path_dispatch1(mname, returns_model):
 
 def path_dispatch2(mname, first_argname, returns_model):
     """Decorator for methods that accept path as a second argument."""
-
     def _wrapper(self, *args, **kwargs):
         other, args = _get_arg(first_argname, args, kwargs)
         path, args = _get_arg('path', args, kwargs)
@@ -109,7 +110,6 @@ def path_dispatch2(mname, first_argname, returns_model):
 def path_dispatch_kwarg(mname, path_default, returns_model):
     """Parameterized decorator for methods that accept path as a second
     argument."""
-
     def _wrapper(self, path=path_default, **kwargs):
         prefix, mgr, mgr_path = _resolve_path(path, self.managers)
         result = getattr(mgr, mname)(path=mgr_path, **kwargs)
@@ -123,7 +123,6 @@ def path_dispatch_kwarg(mname, path_default, returns_model):
 
 def path_dispatch_old_new(mname, returns_model):
     """Decorator for methods accepting old_path and new_path."""
-
     def _wrapper(self, old_path, new_path, *args, **kwargs):
         old_prefix, old_mgr, old_mgr_path = _resolve_path(
             old_path, self.managers)
