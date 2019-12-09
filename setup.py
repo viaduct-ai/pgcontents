@@ -3,6 +3,8 @@ from os.path import join, dirname, abspath
 
 long_description = open('README.md').read()
 
+version = '0.2.0'
+
 
 def read_requirements(basename):
     reqs_file = join(dirname(abspath(__file__)), basename)
@@ -16,16 +18,17 @@ def main():
 
     setup(
         name='hybridcontents',
-        version='0.1.1',
+        version=version,
         description="Hybrid Content Manager",
         long_description=long_description,
         long_description_content_type='text/markdown',
-        author="viaduct.ai",
+        author="viaduct",
         author_email="engineering@viaduct.ai",
         packages=find_packages(include='hybridcontents.*'),
         license='Apache 2.0',
         download_url=
-        'https://github.com/viaduct-ai/hybridcontents/archive/v0.1.1.tar.gz',
+        'https://github.com/viaduct-ai/hybridcontents/archive/v{}.tar.gz'.
+        format(version),
         include_package_data=True,
         zip_safe=True,
         url="https://github.com/viaduct-ai/hybridcontents",
