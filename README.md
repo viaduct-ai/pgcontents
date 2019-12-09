@@ -19,8 +19,16 @@ Getting Started
 pip install hybridcontents
 ```
 
+Featues
+-----
+- Mix and match different content managers for different directories 
+- Easily move files between different content managers (i.e local files to s3 backed manager) 
+- Path validation to keep consistent naming scheme and/or prevent illegal characters
+
 Usage
 -----
+For a detailed example see, [hybrid_manager_example.py](https://github.com/viaduct-ai/hybridcontents/blob/master/examples/hybrid_manager_example.py)
+
 The following code snippet creates a HybridContentsManager with two directories with different content managers. 
 
 ```python
