@@ -1,7 +1,5 @@
 # coding: utf-8
-"""
-Tests for HybridContentsManager.
-"""
+"""Tests for HybridContentsManager."""
 from os import (
     makedirs,
     mkdir,
@@ -20,20 +18,19 @@ from unittest import TestCase
 from mock import Mock
 
 from IPython.utils.tempdir import TemporaryDirectory
+from notebook.services.contents.tests.test_manager import TestContentsManager
+from notebook.services.contents.filemanager import FileContentsManager
+from notebook.services.contents.tests.test_contents_api import APITest
 
 from hybridcontents import HybridContentsManager
 
 from .testing_utils import assertRaisesHTTPError
 
-from ..ipycompat import APITest, FileContentsManager, TestContentsManager
-
 TEST_FILE_NAME = "Untitled.ipynb"
 
 
 def _make_dir(contents_manager, api_path):
-    """
-    Make a directory.
-    """
+    """Make a directory."""
     os_path = contents_manager._get_os_path(api_path)
     try:
         makedirs(os_path)
@@ -54,9 +51,8 @@ class FileTestCase(TestContentsManager):
         self._temp_dir.cleanup()
 
     def make_dir(self, api_path):
-        """make a subdirectory at api_path
-        override in subclasses if contents are not on the filesystem.
-        """
+        """make a subdirectory at api_path override in subclasses if contents
+        are not on the filesystem."""
         _make_dir(self._file_manager, api_path)
 
 
@@ -76,7 +72,7 @@ class MultiRootTestCase(TestCase):
         }
         self.contents_manager = HybridContentsManager(managers=self._managers)
 
-        self.contents_manager.path_validator = {
+        self.contents_manager.path_validators = {
             'A': lambda s: not s.endswith('.yaml')
         }
 

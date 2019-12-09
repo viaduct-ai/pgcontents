@@ -16,7 +16,7 @@
 # Optionally, a HybridContentsManager supports path validation to ensure a
 # consistent naming scheme or avoid illegal characters across different managers
 
-# path_validator, a map from root directory to a validation function for new model paths.
+# path_validators, a map from root directory to a validation function for new model paths.
 
 import os
 from hybridcontents import HybridContentsManager
@@ -81,17 +81,11 @@ c.HybridContentsManager.manager_kwargs = {
 }
 
 
-def no_validation(path):
-    return True
-
-
 def no_spaces(path):
     return ' ' not in path
 
 
-c.HybridContentsManager.path_validator = {
-    "": no_validation,
-    'directory': no_validation,
+c.HybridContentsManager.path_validators = {
     'postgres': no_spaces,
     's3': no_spaces
 }

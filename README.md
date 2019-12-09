@@ -11,7 +11,7 @@ At [Viaduct](https://viaduct.ai) we used [pgcontents](https://github.com/quantop
 Getting Started
 ---------------
 **Prerequisites:**
- - A Python installation with `Jupyter Notebook <https://github.com/jupyter/notebook>`_ >= 4.0.
+ - A Python installation with [Jupyter Notebook](https://github.com/jupyter/notebook) >= 4.0.
 
 **Installation:**
 
@@ -53,7 +53,7 @@ def only_allow_notebooks(path):
   return path.endswith('.ipynb')
 
 # Only allow notebook files to be stored in S3
-c.HybridContentsManager.path_validator = {
+c.HybridContentsManager.path_validators = {
     "shared": only_allow_notebooks
 }
 ```
