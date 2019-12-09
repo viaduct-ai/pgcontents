@@ -1,12 +1,14 @@
 HybridContents
 ======================
 
-The `HybridContentManager` was originally created by [Quantopian](https://www.quantopian.com/) as part of [pgcontents](https://github.com/quantopian/pgcontents); however, the usage of `HybridContentsManager` was restricted to the compatibility requirements of [pgcontents](https://github.com/quantopian/pgcontents). These restrictions included `postgres` dependencies and no support for the latest [notebook](https://pypi.org/project/notebook/) version (>6) even though the `HybridContentsManager`'s had no dependencies on [pgcontents](https://github.com/quantopian/pgcontents). There were open issues related to this:
+The `HybridContentManager` was originally created by [Quantopian](https://www.quantopian.com/) as part of [pgcontents](https://github.com/quantopian/pgcontents); however, the usage of `HybridContentsManager` was restricted to the compatibility requirements of [pgcontents](https://github.com/quantopian/pgcontents). These restrictions included `postgres` dependencies and no support for the latest [notebook](https://pypi.org/project/notebook/) version (>6).
+
+At [Viaduct](https://viaduct.ai) we used [pgcontents](https://github.com/quantopian/pgcontents) exclusively for the `HybridContentsManager` and wanted to extend its functionality, so we created this fork [hybridcontents](https://github.com/viaduct-ai/hybridcontents).
+
+See related [pgcontents](https://github.com/quantopian/pgcontents) issues:
 - https://github.com/quantopian/pgcontents/issues/66
 - https://github.com/quantopian/pgcontents/issues/50
 - https://github.com/quantopian/pgcontents/issues/28
-
-At [Viaduct](https://viaduct.ai) we used [pgcontents](https://github.com/quantopian/pgcontents) exclusively for the `HybridContentsManager` and wanted to extend its functionality, so we created this fork [hybridcontents](https://github.com/viaduct-ai/hybridcontents).
 
 Getting Started
 ---------------
