@@ -12,6 +12,7 @@ from .api_utils import (
     base_directory_model,
     normalize_api_path,
     outside_root_to_404,
+    INVALID_PATH_ERROR,
 )
 
 
@@ -201,7 +202,7 @@ class HybridContentsManager(ContentsManager):
 
         if not path_is_valid:
             raise HTTPError(
-                405,
+                INVALID_PATH_ERROR,
                 "The path '{path}' is not valid for the directory '{prefix}'/".
                 format(path=path, prefix=prefix))
 
@@ -271,7 +272,6 @@ class HybridContentsManager(ContentsManager):
         False,
     )
 
-    # CODE WRITTEN BY VIADUCT
     @outside_root_to_404
     def save(self, model, path):
         prefix, mgr, mgr_path = _resolve_path(path, self.managers)

@@ -23,10 +23,12 @@ from notebook.services.contents.filemanager import FileContentsManager
 from notebook.services.contents.tests.test_contents_api import APITest
 
 from hybridcontents import HybridContentsManager
+from hybridcontents.api_utils import INVALID_PATH_ERROR
 
 from .testing_utils import assertRaisesHTTPError
 
-TEST_FILE_NAME = "Untitled.ipynb"
+TEST_FILE_NAME = "Untitled"
+TEST_NOTEBOOK = "{name}.ipynb".format(name=TEST_FILE_NAME)
 
 
 def _make_dir(contents_manager, api_path):
@@ -86,9 +88,9 @@ class MultiRootTestCase(TestCase):
             name = model['name']
             path = model['path']
 
-            self.assertEqual(name, TEST_FILE_NAME)
-            self.assertEqual(path, pjoin(prefix, TEST_FILE_NAME))
-            self.assertTrue(exists(osjoin(real_dir, TEST_FILE_NAME)))
+            self.assertEqual(name, TEST_NOTEBOOK)
+            self.assertEqual(path, pjoin(prefix, TEST_NOTEBOOK))
+            self.assertTrue(exists(osjoin(real_dir, TEST_NOTEBOOK)))
 
             # Check that we can 'get' on the notebook we just created
             model2 = cm.get(path)
@@ -132,15 +134,15 @@ class MultiRootTestCase(TestCase):
             prefixed_sub_dir = pjoin(prefix, sub_dir)
 
             cm.new_untitled(path=prefixed_sub_dir, ext='.ipynb')
-            self.assertTrue(exists(osjoin(real_dir, sub_dir, TEST_FILE_NAME)))
+            self.assertTrue(exists(osjoin(real_dir, sub_dir, TEST_NOTEBOOK)))
 
-            sub_dir_nbpath = pjoin(prefixed_sub_dir, TEST_FILE_NAME)
+            sub_dir_nbpath = pjoin(prefixed_sub_dir, TEST_NOTEBOOK)
             model2 = cm.get(sub_dir_nbpath)
             self.assertDictContainsSubset(
                 {
                     'type': 'notebook',
                     'format': 'json',
-                    'name': TEST_FILE_NAME,
+                    'name': TEST_NOTEBOOK,
                     'path': sub_dir_nbpath,
                 },
                 model2,
@@ -240,7 +242,7 @@ class MultiRootTestCase(TestCase):
         self.assertIsInstance(content, list)
         # Two new files, plus the sub-manager directories.
         dirs = set(self.temp_dir_names)
-        files = {TEST_FILE_NAME, 'untitled.txt'}
+        files = {TEST_NOTEBOOK, 'untitled.txt'}
         paths = dirs | files
 
         self.assertEqual(len(content), 4)
@@ -254,7 +256,7 @@ class MultiRootTestCase(TestCase):
                 self.fail("Unexpected entry path %s" % entry)
             if path in dirs:
                 self.assertEqual(entry['type'], 'directory')
-            elif path == TEST_FILE_NAME:
+            elif path == TEST_NOTEBOOK:
                 self.assertEqual(entry['type'], 'notebook')
             else:
                 self.assertEqual(entry['type'], 'file')
@@ -275,7 +277,7 @@ class MultiRootTestCase(TestCase):
         cm = self.contents_manager
         cm.new_untitled(ext='.ipynb')
 
-        new_path = 'A/test/Untitled.ipynb'
+        new_path = 'A/test/{file}'.format(file=TEST_NOTEBOOK)
 
         old_manager = self._managers['']
 
@@ -286,26 +288,26 @@ class MultiRootTestCase(TestCase):
         cm.save = Mock()
 
         # Get test data
-        old_model = old_manager.get(TEST_FILE_NAME)
+        old_model = old_manager.get(TEST_NOTEBOOK)
 
         # Make calls
-        cm.rename(TEST_FILE_NAME, new_path)
+        cm.rename(TEST_NOTEBOOK, new_path)
 
         # Run tests
-        old_manager.delete.assert_called_with(TEST_FILE_NAME)
-        old_manager.get.assert_called_with(TEST_FILE_NAME)
+        old_manager.delete.assert_called_with(TEST_NOTEBOOK)
+        old_manager.get.assert_called_with(TEST_NOTEBOOK)
         cm.save.assert_called_with(old_model, new_path)
 
     def test_can_rename_across_managers(self):
         cm = self.contents_manager
         cm.new_untitled(ext='.ipynb')
 
-        new_path = 'A/Untitled.ipynb'
+        new_path = 'A/{file}'.format(file=TEST_NOTEBOOK)
 
-        cm.rename(TEST_FILE_NAME, new_path)
+        cm.rename(TEST_NOTEBOOK, new_path)
 
         with assertRaisesHTTPError(self, 404):
-            cm.get(TEST_FILE_NAME)
+            cm.get(TEST_NOTEBOOK)
 
         model2 = cm.get(new_path)
 
@@ -314,29 +316,29 @@ class MultiRootTestCase(TestCase):
     def test_rename_invalid_path(self):
         cm = self.contents_manager
 
-        cm.new_untitled(ext='.yaml')
+        cm.new_untitled(ext='.ipynb')
 
-        old_path = 'Untitled.yaml'
-        new_path = 'A/Untitled.yaml'
+        old_path = TEST_NOTEBOOK
+        new_path = 'A/{name}.yaml'.format(name=TEST_FILE_NAME)
 
-        with assertRaisesHTTPError(self, 405):
+        with assertRaisesHTTPError(self, INVALID_PATH_ERROR):
             cm.rename(old_path, new_path)
 
     def test_rename_invalid_path_same_manager(self):
         cm = self.contents_manager
 
-        cm.new_untitled(path='A', ext='.txt')
+        cm.new_untitled(path='A', ext='.ipynb')
 
-        old_path = 'A/Untitled.txt'
-        new_path = 'A/Untitled2.yaml'
+        old_path = 'A/{file}'.format(file=TEST_NOTEBOOK)
+        new_path = 'A/{name}.yaml'.format(name=TEST_FILE_NAME)
 
-        with assertRaisesHTTPError(self, 405):
+        with assertRaisesHTTPError(self, INVALID_PATH_ERROR):
             cm.rename(old_path, new_path)
 
     def test_save_invalid_path(self):
         cm = self.contents_manager
 
-        with assertRaisesHTTPError(self, 405):
+        with assertRaisesHTTPError(self, INVALID_PATH_ERROR):
             cm.new_untitled(path='A', ext='.yaml')
 
     def tearDown(self):

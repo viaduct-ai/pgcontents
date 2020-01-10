@@ -1,6 +1,4 @@
-"""
-Utilities for implementing the ContentsManager API.
-"""
+"""Utilities for implementing the ContentsManager API."""
 from __future__ import unicode_literals
 
 from datetime import datetime
@@ -8,6 +6,8 @@ from functools import wraps
 import posixpath
 
 from tornado.web import HTTPError
+
+INVALID_PATH_ERROR = 405
 
 
 class PathOutsideRoot(Exception):
@@ -43,10 +43,8 @@ def base_directory_model(path):
 
 
 def normalize_api_path(api_path):
-    """
-    Resolve paths with '..' to normalized paths, raising an error if the final
-    result is outside root.
-    """
+    """Resolve paths with '..' to normalized paths, raising an error if the
+    final result is outside root."""
     normalized = posixpath.normpath(api_path.strip('/'))
     if normalized == '.':
         normalized = ''
@@ -56,15 +54,11 @@ def normalize_api_path(api_path):
 
 
 def outside_root_to_404(fn):
-    """
-    Decorator for converting PathOutsideRoot errors to 404s.
-    """
-
+    """Decorator for converting PathOutsideRoot errors to 404s."""
     @wraps(fn)
     def wrapped(*args, **kwargs):
         try:
             return fn(*args, **kwargs)
         except PathOutsideRoot as e:
             raise HTTPError(404, "Path outside root: [%s]" % e.args[0])
-
     return wrapped
