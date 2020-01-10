@@ -78,3 +78,13 @@ tox
 ```
 
 This will run all unit tests for python versions 2.7, 3.6, 3.7 and jupyter notebook versions 4, 5, and 6.
+
+### Publishing a Release
+
+1. Create a new release on Github
+2. Update the version in `setup.py`
+3. Run ./scripts/pip_publish.sh
+4. Update the version `meta.yaml`
+5. Update the [sha256 in meta.yaml](https://github.com/conda-forge/staged-recipes/wiki/Frequently-asked-questions#2-how-do-i-populate-the-hash-field)
+6. Run ./scripts/anaconda_publish.sh
+7. Update on Conda Forge
