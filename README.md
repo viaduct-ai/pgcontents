@@ -17,15 +17,15 @@ Getting Started
 
 **Installation:**
 
-### [pip](https://pypi.org/project/hybridcontents/)
+#### [pip](https://pypi.org/project/hybridcontents/)
 ```bash
 pip install hybridcontents
 ```
-### [Anaconda](https://anaconda.org/viaduct/hybridcontents)
+#### [Anaconda](https://anaconda.org/viaduct/hybridcontents)
 ```bash
 conda install -c viaduct hybridcontents
 ```
-### [conda-forge](https://github.com/conda-forge/hybridcontents-feedstock)
+#### [conda-forge](https://github.com/conda-forge/hybridcontents-feedstock)
 See instructions [here](https://github.com/conda-forge/hybridcontents-feedstock#installing-hybridcontents)
 
 Featues
