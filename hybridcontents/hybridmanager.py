@@ -323,3 +323,11 @@ class HybridContentsManager(ContentsManager):
         self._validate_path(new_prefix, new_mgr_path)
 
         return new_mgr.rename(old_mgr_path, new_mgr_path)
+
+    @outside_root_to_404
+    def get_kernel_path(self, path, model=None):
+        prefix, mgr, mgr_path = _resolve_path(path, self.managers)
+
+        self._validate_path(prefix, mgr_path)
+
+        return mgr.get_kernel_path(mgr_path)
