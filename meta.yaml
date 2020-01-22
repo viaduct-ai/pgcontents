@@ -1,5 +1,5 @@
 {% set name = "hybridcontents" %}
-{% set version = "0.2.1" %}
+{% set version = "0.3.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: af8e3f6886533748761e41bd12690a9c4854e2a12baae2d49f5b72258f3138e4
+  sha256: 6e1242a65c06174563df948e9e861611f18002e09e9916072d78c8ba0b8d5753
 
 build:
   noarch: python
