@@ -328,6 +328,4 @@ class HybridContentsManager(ContentsManager):
     def get_kernel_path(self, path, model=None):
         prefix, mgr, mgr_path = _resolve_path(path, self.managers)
 
-        self._validate_path(prefix, mgr_path)
-
-        return mgr.get_kernel_path(mgr_path)
+        return mgr.get_kernel_path(mgr_path, model)
