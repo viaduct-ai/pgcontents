@@ -341,6 +341,24 @@ class MultiRootTestCase(TestCase):
         with assertRaisesHTTPError(self, INVALID_PATH_ERROR):
             cm.new_untitled(path='A', ext='.yaml')
 
+    def test_kernel_path(self):
+        # We are using FileContentsManager for all roots in test, so kernel
+        # paths should be same as notebook paths
+        cm = self.contents_manager
+
+        for prefix, real_dir in iteritems(self.temp_dir_names):
+            # Notebook in main dir - kernel path is '' (relative to main dir)
+            model = cm.new_untitled(path=prefix, type='notebook')
+            path = model['path']
+            self.assertEqual(cm.get_kernel_path(path), '')
+            # Test notebook in sub-directory
+            sub_dir = 'foo'
+            mkdir(osjoin(real_dir, sub_dir))
+            prefixed_sub_dir = pjoin(prefix, sub_dir)
+            model = cm.new_untitled(path=prefixed_sub_dir, type='notebook')
+            path = model['path']
+            self.assertEqual(cm.get_kernel_path(path), sub_dir)
+
     def tearDown(self):
         for dir_ in itervalues(self.temp_dirs):
             dir_.cleanup()
