@@ -1,5 +1,6 @@
 # Test reqs.
 tox
+tox-gh-actions
 pytest
 python-dateutil==2.4.2
 flake8==2.2.5
