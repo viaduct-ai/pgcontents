@@ -46,6 +46,8 @@ c = get_config()
 c.NotebookApp.contents_manager_class = HybridContentsManager
 
 c.HybridContentsManager.manager_classes = {
+    # NOTE: LargFileManager only exists in notebook > 5
+    # If using notebook < 5, use FileContentManager instead
     "": LargeFileManager,
     "shared": S3ContentsManager
 }

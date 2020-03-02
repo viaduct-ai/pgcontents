@@ -24,6 +24,8 @@ from pgcontents.pgmanager import PostgresContentsManager
 from s3contents import S3ContentsManager, GCSContentsManager
 
 # LargeFileManager is the default Jupyter content manager
+# NOTE: LargFileManager only exists in notebook > 5
+# If using notebook < 5, use FileContentManager instead
 from notebook.services.contents.largefilemanager import LargeFileManager
 
 c = get_config()
