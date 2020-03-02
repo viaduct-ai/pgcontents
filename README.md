@@ -46,13 +46,13 @@ c = get_config()
 c.NotebookApp.contents_manager_class = HybridContentsManager
 
 c.HybridContentsManager.manager_classes = {
-    "": FileContentsManager,
+    "": LargeFileManager,
     "shared": S3ContentsManager
 }
 
 # Each item will be passed to the constructor of the appropriate content manager.
 c.HybridContentsManager.manager_kwargs = {
-    # Args for root FileContentsManager
+    # Args for root LargeFileManager
     "": {
         "root_dir": read_only_dir
     },

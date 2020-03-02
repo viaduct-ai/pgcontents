@@ -23,10 +23,8 @@ from hybridcontents import HybridContentsManager
 from pgcontents.pgmanager import PostgresContentsManager
 from s3contents import S3ContentsManager, GCSContentsManager
 
-# Using Jupyter (IPython >= 4.0).
-# from notebook.services.contents.filemanager import FileContentsManager
-# Using Legacy IPython.
-from IPython.html.services.contents.filemanager import FileContentsManager
+# LargeFileManager is the default Jupyter content manager
+from notebook.services.contents.largefilemanager import LargeFileManager
 
 c = get_config()
 
@@ -34,13 +32,13 @@ c = get_config()
 c.NotebookApp.contents_manager_class = HybridContentsManager
 
 c.HybridContentsManager.manager_classes = {
-    # Associate the root directory with a FileContentsManager,
+    # Associate the root directory with a LargeFileManager,
     # This manager will receive all requests that don't fall under any of the
     # other managers.
     # If you want to make this path un-editable you can configure it to use a read-only filesystem
-    '': FileContentsManager,
-    # Associate /directory with a FileContentsManager.
-    'directory': FileContentsManager,
+    '': LargeFileManager,
+    # Associate /directory with a LargeFileManager.
+    'directory': LargeFileManager,
     # Associate the postgres directory with a PostgresContentManager
     'postgres': PostgresContentsManager,
     # Associate the s3 directory with AWS S3
@@ -50,11 +48,11 @@ c.HybridContentsManager.manager_classes = {
 }
 
 c.HybridContentsManager.manager_kwargs = {
-    # Args for the FileContentsManager mapped to /directory
+    # Args for the LargeFileManager mapped to /directory
     '': {
         'root_dir': '/tmp/read-only',
     },
-    # Args for the FileContentsManager mapped to /directory
+    # Args for the LargeFileManager mapped to /directory
     'directory': {
         'root_dir': '/home/viaduct/local_directory',
     },

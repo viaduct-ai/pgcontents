@@ -19,7 +19,7 @@ from mock import Mock
 
 from IPython.utils.tempdir import TemporaryDirectory
 from notebook.services.contents.tests.test_manager import TestContentsManager
-from notebook.services.contents.filemanager import FileContentsManager
+from notebook.services.contents.largefilemanager import LargeFileManager
 from notebook.services.contents.tests.test_contents_api import APITest
 
 from hybridcontents import HybridContentsManager
@@ -44,8 +44,8 @@ class FileTestCase(TestContentsManager):
     def setUp(self):
         self._temp_dir = TemporaryDirectory()
         self.td = self._temp_dir.name
-        self._file_manager = FileContentsManager(root_dir=self.td,
-                                                 delete_to_trash=False)
+        self._file_manager = LargeFileManager(root_dir=self.td,
+                                              delete_to_trash=False)
         self.contents_manager = HybridContentsManager(
             managers={'': self._file_manager})
 
@@ -68,8 +68,8 @@ class MultiRootTestCase(TestCase):
             for prefix, v in iteritems(self.temp_dirs)
         }
         self._managers = {
-            prefix: FileContentsManager(root_dir=self.temp_dir_names[prefix],
-                                        delete_to_trash=False)
+            prefix: LargeFileManager(root_dir=self.temp_dir_names[prefix],
+                                     delete_to_trash=False)
             for prefix in mgr_roots
         }
         self.contents_manager = HybridContentsManager(managers=self._managers)
@@ -342,7 +342,7 @@ class MultiRootTestCase(TestCase):
             cm.new_untitled(path='A', ext='.yaml')
 
     def test_kernel_path(self):
-        # We are using FileContentsManager for all roots in test, so kernel
+        # We are using LargeFileManager for all roots in test, so kernel
         # paths should be same as notebook paths
         cm = self.contents_manager
 
