@@ -122,34 +122,6 @@ def path_dispatch_kwarg(mname, path_default, returns_model):
     return _wrapper
 
 
-def path_dispatch_old_new(mname, returns_model):
-    """Decorator for methods accepting old_path and new_path."""
-    def _wrapper(self, old_path, new_path, *args, **kwargs):
-        old_prefix, old_mgr, old_mgr_path = _resolve_path(
-            old_path, self.managers)
-        new_prefix, new_mgr, new_mgr_path = _resolve_path(
-            new_path,
-            self.managers,
-        )
-        if old_mgr is not new_mgr:
-            # TODO: Consider supporting this via get+delete+save.
-            raise HTTPError(
-                400,
-                "Can't move files between backends ({old} -> {new})".format(
-                    old=old_path,
-                    new=new_path,
-                ))
-        assert new_prefix == old_prefix
-        result = getattr(new_mgr, mname)(old_mgr_path, new_mgr_path, *args,
-                                         **kwargs)
-        if returns_model and new_prefix:
-            return _apply_prefix(new_prefix, result)
-        else:
-            return result
-
-    return _wrapper
-
-
 def DEFAULT_PATH_VALIDATOR(path):
     return True
 
