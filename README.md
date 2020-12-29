@@ -28,7 +28,7 @@ conda install -c viaduct hybridcontents
 #### [conda-forge](https://github.com/conda-forge/hybridcontents-feedstock)
 See instructions [here](https://github.com/conda-forge/hybridcontents-feedstock#installing-hybridcontents)
 
-Featues
+Features
 -----
 - Mix and match different content managers for different directories 
 - Easily move files between different content managers (i.e local files to s3 backed manager) 
