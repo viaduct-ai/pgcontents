@@ -4,7 +4,12 @@ from __future__ import unicode_literals
 from six import iteritems
 from tornado.web import HTTPError
 
-from notebook.services.contents.manager import ContentsManager
+try:
+    # new source for ContentsManager
+    from jupyter_server.services.contents.manager import ContentsManager
+except ImportError:
+    # old way of importing from the notebook package
+    from notebook.services.contents.manager import ContentsManager
 
 from traitlets import Dict
 
