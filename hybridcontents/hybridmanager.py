@@ -4,7 +4,17 @@ from __future__ import unicode_literals
 from six import iteritems
 from tornado.web import HTTPError
 
-from notebook.services.contents.manager import ContentsManager
+# Ref. https://github.com/jupyter/nbdime/blob/c82362344e596efdc4f54c927d90338940e0fa41/nbdime/webapp/nb_server_extension.py#L16-L33
+# This allows solving conflicts between the class import from either notebook or jupyter_server
+try:
+    from notebook.services.contents.manager import ContentsManager
+except ModuleNotFoundError:
+    pass
+
+try:
+    from jupyter_server.services.contents.manager import ContentsManager
+except ModuleNotFoundError:
+    pass
 
 from traitlets import Dict
 
