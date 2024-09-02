@@ -200,11 +200,11 @@ class HybridContentsManager(ContentsManager):
     __delete = path_dispatch1('delete', False)
 
     @outside_root_to_404
-    def get(self, path, content=True, type=None, format=None):
+    def get(self, path, content=True, type=None, format=None, require_hash=False):
         """Special case handling for listing root dir."""
         path = normalize_api_path(path)
         if path:
-            return self.__get(path, content=content, type=type, format=format)
+            return self.__get(path, content=content, type=type, format=format, require_hash=require_hash)
         if not content:
             return base_directory_model('')
 
@@ -222,6 +222,7 @@ class HybridContentsManager(ContentsManager):
                 content=content,
                 type=type,
                 format=format,
+                require_hash=require_hash,
             )
             # Append the extra directories.
             root_model['content'].extend(extra_content)
